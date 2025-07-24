@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Lesson: Places & Directions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+        }
+        .test-tip {
+            background-color: #fffbe6;
+            border-left: 4px solid #facc15;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            border-radius: 0.25rem;
+        }
+        .test-tip-title {
+            font-weight: 600;
+            color: #ca8a04;
+            display: flex;
+            align-items: center;
+        }
+        .draggable {
+            cursor: grab;
+            user-select: none;
+            transition: transform 0.2s;
+        }
+        .draggable:active {
+            cursor: grabbing;
+            transform: scale(1.05);
+            z-index: 10;
+        }
+        .drop-zone {
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .drop-zone.drag-over {
+            background-color: #dbeafe;
+            border-color: #3b82f6;
+        }
+        .correct {
+            background-color: #dcfce7 !important;
+            border-color: #22c55e !important;
+        }
+        .incorrect {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+        }
+        .mc-option {
+            transition: background-color 0.2s, border-color 0.2s;
+            cursor: pointer;
+        }
+        .mc-option.selected {
+            background-color: #bfdbfe;
+            border-color: #3b82f6;
+        }
+        /* SVG path animation for directions */
+        #direction-path {
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: draw-path 3s ease-out forwards;
+        }
+        @keyframes draw-path {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+        audio {
+            width: 100%;
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8">
+        <header class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-gray-900">Places & Directions</h1>
+            <p class="mt-2 text-lg text-gray-600">An interactive practice worksheet</p>
+        </header>
+
+        <main class="space-y-16">
+
+            <!-- Section 1: Vocabulary Matching -->
+            <section id="vocabulary">
+                <h2 class="text-2xl font-semibold mb-4 border-b pb-2">1. Describing a Place</h2>
+                <p class="mb-6 text-gray-600">Drag the labels to match them with the correct images.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div id="vocab-drop-A" data-correct="escalator" class="vocab-drop-zone border-2 border-dashed rounded-lg p-4 bg-white flex flex-col items-center justify-center h-48"><svg viewBox="0 0 100 60" class="w-3/4 h-3/4"><g transform="translate(0, 5)"><path d="M 10 50 C 10 60, 0 60, 0 50 L 0 45 L 20 25 L 70 25 L 90 45 L 90 50 C 90 60, 100 60, 100 50" fill="#e2e8f0"/><rect x="20" y="25" width="50" height="3" fill="#94a3b8"/><rect x="25" y="28" width="50" height="3" fill="#94a3b8"/><rect x="30" y="31" width="50" height="3" fill="#94a3b8"/><rect x="35" y="34" width="50" height="3" fill="#94a3b8"/><rect x="40" y="37" width="50" height="3" fill="#94a3b8"/></g></svg></div>
+                    <div id="vocab-drop-B" data-correct="pond" class="vocab-drop-zone border-2 border-dashed rounded-lg p-4 bg-white flex flex-col items-center justify-center h-48"><svg viewBox="0 0 100 60" class="w-3/4 h-3/4"><ellipse cx="50" cy="30" rx="48" ry="20" fill="#60a5fa"/><ellipse cx="30" cy="28" rx="8" ry="4" fill="#22c55e"/><ellipse cx="65" cy="35" rx="10" ry="5" fill="#22c55e"/><ellipse cx="50" cy="25" rx="7" ry="3" fill="#16a34a"/></svg></div>
+                    <div id="vocab-drop-C" data-correct="fountain" class="vocab-drop-zone border-2 border-dashed rounded-lg p-4 bg-white flex flex-col items-center justify-center h-48"><svg viewBox="0 0 100 100" class="h-3/4 w-3/4"><path d="M50 95 C 70 95, 85 85, 85 70 S 70 45, 50 45 S 15 55, 15 70 S 30 95, 50 95 Z" fill="#a5f3fc"/><path d="M50 75 C 60 75, 70 70, 70 60 S 60 45, 50 45 S 30 50, 30 60 S 40 75, 50 75 Z" fill="#67e8f9"/><path d="M50 65 C 55 65, 60 62, 60 55 S 55 45, 50 45 S 40 48, 40 55 S 45 65, 50 65 Z" fill="#06b6d4"/><path d="M50 45 C 45 20, 55 20, 50 45 M 45 40 C 30 20, 45 20, 45 40 M 55 40 C 70 20, 55 20, 55 40" stroke="#06b6d4" stroke-width="3" fill="none"/></svg></div>
+                    <div id="vocab-drop-D" data-correct="traffic-light" class="vocab-drop-zone border-2 border-dashed rounded-lg p-4 bg-white flex flex-col items-center justify-center h-48"><svg viewBox="0 0 40 100" class="h-3/4"><rect x="5" y="0" width="30" height="90" rx="5" fill="#475569"/><circle cx="20" cy="20" r="10" fill="#ef4444"/><circle cx="20" cy="45" r="10" fill="#f59e0b"/><circle cx="20" cy="70" r="10" fill="#22c55e"/></svg></div>
+                    <div id="vocab-drop-E" data-correct="hill" class="vocab-drop-zone border-2 border-dashed rounded-lg p-4 bg-white flex flex-col items-center justify-center h-48"><svg viewBox="0 0 100 60" class="w-3/4 h-3/4"><path d="M 0 60 L 0 40 Q 50 0, 100 40 L 100 60 Z" fill="#84cc16"/></svg></div>
+                    <div id="vocab-drop-F" data-correct="roundabout" class="vocab-drop-zone border-2 border-dashed rounded-lg p-4 bg-white flex flex-col items-center justify-center h-48"><svg viewBox="0 0 100 100" class="w-3/4 h-3/4"><rect x="0" y="40" width="100" height="20" fill="#d1d5db"/><rect x="40" y="0" width="20" height="100" fill="#d1d5db"/><circle cx="50" cy="50" r="25" fill="#84cc16"/><circle cx="50" cy="50" r="15" fill="#a3e635"/></svg></div>
+                </div>
+
+                <div id="vocab-labels-container" class="flex flex-wrap gap-4 mt-6 justify-center bg-gray-100 p-4 rounded-lg">
+                    <div id="escalator" draggable="true" class="vocab-draggable draggable bg-blue-100 text-blue-800 px-4 py-2 rounded-full font-medium">Escalator</div><div id="pond" draggable="true" class="vocab-draggable draggable bg-blue-100 text-blue-800 px-4 py-2 rounded-full font-medium">Pond</div><div id="fountain" draggable="true" class="vocab-draggable draggable bg-blue-100 text-blue-800 px-4 py-2 rounded-full font-medium">Fountain</div><div id="traffic-light" draggable="true" class="vocab-draggable draggable bg-blue-100 text-blue-800 px-4 py-2 rounded-full font-medium">Traffic Light</div><div id="hill" draggable="true" class="vocab-draggable draggable bg-blue-100 text-blue-800 px-4 py-2 rounded-full font-medium">Hill</div><div id="roundabout" draggable="true" class="vocab-draggable draggable bg-blue-100 text-blue-800 px-4 py-2 rounded-full font-medium">Roundabout</div>
+                </div>
+            </section>
+
+            <!-- Section 2: Listening for Specifics -->
+            <section id="listening-specifics">
+                <h2 class="text-2xl font-semibold mb-4 border-b pb-2">Listening for Specifics</h2>
+                <p class="mb-2 text-gray-600">Listen to the audio and choose the correct letter (A, B, or C) for each question.</p>
+                <audio controls><source src="https://raw.githubusercontent.com/NeoTetsuya/IELTSguide/main/Cam16.mp3" type="audio/mpeg"></audio>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Question 1 -->
+                    <div class="bg-white p-4 rounded-lg shadow-sm">
+                        <p class="font-semibold mb-2">1. Where is the gift shop?</p>
+                        <div class="relative" data-question="1" data-answer="B">
+                            <img src="https://i.postimg.cc/yYRgN2v6/giftshop.png" alt="Map with toilets, lifts, and entrance" class="w-full h-auto rounded">
+                            <div class="mc-option absolute border-2 border-dashed rounded-md bg-white/50" style="top: 20%; left: 35.5%; width: 28%; height: 20%;" data-option="A"></div>
+                            <div class="mc-option absolute border-2 border-dashed rounded-md bg-white/50" style="top: 20%; left: 67%; width: 28%; height: 20%;" data-option="B"></div>
+                            <div class="mc-option absolute border-2 border-dashed rounded-md bg-white/50" style="top: 65%; left: 35.5%; width: 28%; height: 20%;" data-option="C"></div>
+                        </div>
+                    </div>
+                    <!-- Question 2 -->
+                    <div class="bg-white p-4 rounded-lg shadow-sm">
+                        <p class="font-semibold mb-2">2. Where can you buy stamps?</p>
+                        <div class="relative" data-question="2" data-answer="C">
+                            <img src="https://i.postimg.cc/wx7wT5Zx/stamps.png" alt="Map with pond, tree, and entrance" class="w-full h-auto rounded">
+                             <div class="mc-option absolute border-2 border-dashed rounded-md bg-white/50 w-[30%] h-[30%] top-[10%] left-[20%]" data-option="A"></div>
+                             <div class="mc-option absolute border-2 border-dashed rounded-md bg-white/50 w-[30%] h-[30%] top-[10%] right-[10%]" data-option="B"></div>
+                             <div class="mc-option absolute border-2 border-dashed rounded-md bg-white/50 w-[30%] h-[30%] top-[50%] right-[10%]" data-option="C"></div>
+                        </div>
+                    </div>
+                    <!-- Question 3 -->
+                    <div class="bg-white p-4 rounded-lg shadow-sm">
+                        <p class="font-semibold mb-2">3. What is the proposed location of the new bridge?</p>
+                        <div class="relative" data-question="3" data-answer="A">
+                            <img src="https://i.postimg.cc/66kfWkCz/newbridge.png" alt="Map of a motorway and a bridge" class="w-full h-auto rounded">
+                             <div class="mc-option absolute border-2 border-dashed rounded-md bg-white/50 w-[20%] h-[25%] top-[38%] left-[18%]" data-option="A"></div>
+                             <div class="mc-option absolute border-2 border-dashed rounded-md bg-white/50 w-[20%] h-[25%] top-[15%] left-[40%]" data-option="B"></div>
+                             <div class="mc-option absolute border-2 border-dashed rounded-md bg-white/50 w-[20%] h-[25%] top-[38%] right-[18%]" data-option="C"></div>
+                        </div>
+                    </div>
+                    <!-- Question 4 -->
+                    <div class="bg-white p-4 rounded-lg shadow-sm">
+                        <p class="font-semibold mb-2">4. Where is the ideal habitat for the Traviston Frog?</p>
+                        <div class="relative" data-question="4" data-answer="B">
+                             <img src="https://i.postimg.cc/pT9KxCTg/travistonfrog.png" alt="Map of a frog habitat with bushes, pond and tree" class="w-full h-auto rounded">
+                             <div class="mc-option absolute border-2 border-dashed rounded-md bg-white/50 w-[25%] h-[30%] top-[45%] left-[10%]" data-option="A"></div>
+                             <div class="mc-option absolute border-2 border-dashed rounded-md bg-white/50 w-[25%] h-[30%] top-[45%] left-[37%]" data-option="B"></div>
+                             <div class="mc-option absolute border-2 border-dashed rounded-md bg-white/50 w-[25%] h-[30%] top-[10%] right-[10%]" data-option="C"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-6 text-center"><button id="check-specifics-btn" class="bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors">Check Answers</button></div>
+            </section>
+            
+            <!-- Section 3: Following Directions -->
+            <section id="directions">
+                <h2 class="text-2xl font-semibold mb-4 border-b pb-2">Following Directions</h2>
+                <p class="mb-2 text-gray-600">Listen to the audio, then click the "Show Directions" button to see an animated route. Select the map that correctly shows the final destination.</p>
+                <audio controls><source src="https://raw.githubusercontent.com/NeoTetsuya/IELTSguide/main/Cam17.mp3" type="audio/mpeg"></audio>
+                <div class="flex justify-center my-6">
+                    <button id="show-directions-btn" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">Show Directions</button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div id="map-option-A" class="direction-map-option border-4 border-transparent rounded-lg p-2 cursor-pointer hover:border-blue-400"><p class="text-center font-bold mb-2">Map A</p><div class="bg-white p-4 rounded-md shadow-sm"><svg viewBox="0 0 200 120" class="w-full h-auto"><rect x="0" y="50" width="200" height="20" fill="#d1d5db"/><rect x="40" y="0" width="20" height="120" fill="#d1d5db"/><rect x="140" y="0" width="20" height="120" fill="#d1d5db"/><rect x="0" y="20" width="35" height="25" fill="#f3f4f6" stroke="#9ca3af"/><text x="17.5" y="35" font-size="6" text-anchor="middle">Hotel</text><rect x="5" y="75" width="30" height="25" fill="#f3f4f6" stroke="#9ca3af"/><text x="20" y="90" font-size="5" text-anchor="middle">Post Office</text><rect x="65" y="20" width="70" height="25" fill="#f3f4f6" stroke="#9ca3af"/><text x="100" y="35" font-size="6" text-anchor="middle">Bank</text><rect x="70" y="75" width="60" height="25" fill="#f3f4f6" stroke="#9ca3af"/><text x="100" y="48" font-size="6" text-anchor="middle">Riverside Street</text><text x="30" y="60" font-size="6" text-anchor="middle" transform="rotate(-90 30 60)">Bridge Street</text><text x="160" y="60" font-size="6" text-anchor="middle" transform="rotate(-90 160 60)">Queens Road</text><path d="M0 60 L140 60 L140 85 L130 85 L130 75" stroke="black" stroke-width="2" fill="none" marker-end="url(#arrowhead-black)"/><defs><marker id="arrowhead-black" markerWidth="5" markerHeight="3.5" refX="2.5" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5" fill="black" /></marker></defs></svg></div></div>
+                    <div id="map-option-B" class="direction-map-option border-4 border-transparent rounded-lg p-2 cursor-pointer hover:border-blue-400"><p class="text-center font-bold mb-2">Map B</p><div class="bg-white p-4 rounded-md shadow-sm"><svg viewBox="0 0 200 120" class="w-full h-auto"><rect x="0" y="50" width="200" height="20" fill="#d1d5db"/><rect x="40" y="0" width="20" height="120" fill="#d1d5db"/><rect x="140" y="0" width="20" height="120" fill="#d1d5db"/><rect x="0" y="20" width="35" height="25" fill="#f3f4f6" stroke="#9ca3af"/><text x="17.5" y="35" font-size="6" text-anchor="middle">Hotel</text><rect x="5" y="75" width="30" height="25" fill="#f3f4f6" stroke="#9ca3af"/><text x="20" y="90" font-size="5" text-anchor="middle">Post Office</text><rect x="65" y="20" width="70" height="25" fill="#f3f4f6" stroke="#9ca3af"/><text x="100" y="35" font-size="6" text-anchor="middle">Bank</text><text x="100" y="48" font-size="6" text-anchor="middle">Riverside Street</text><text x="30" y="60" font-size="6" text-anchor="middle" transform="rotate(-90 30 60)">Bridge Street</text><text x="160" y="60" font-size="6" text-anchor="middle" transform="rotate(-90 160 60)">Queens Road</text><path d="M50 120 L50 60 L140 60 L140 45" stroke="black" stroke-width="2" fill="none" marker-end="url(#arrowhead-black)"/><g id="direction-path-container"></g></svg></div></div>
+                    <div id="map-option-C" class="direction-map-option border-4 border-transparent rounded-lg p-2 cursor-pointer hover:border-blue-400"><p class="text-center font-bold mb-2">Map C</p><div class="bg-white p-4 rounded-md shadow-sm"><svg viewBox="0 0 200 120" class="w-full h-auto"><rect x="0" y="50" width="200" height="20" fill="#d1d5db"/><rect x="40" y="0" width="20" height="120" fill="#d1d5db"/><rect x="140" y="0" width="20" height="120" fill="#d1d5db"/><rect x="0" y="20" width="35" height="25" fill="#f3f4f6" stroke="#9ca3af"/><text x="17.5" y="35" font-size="6" text-anchor="middle">Hotel</text><rect x="5" y="75" width="30" height="25" fill="#f3f4f6" stroke="#9ca3af"/><text x="20" y="90" font-size="5" text-anchor="middle">Post Office</text><rect x="65" y="20" width="70" height="25" fill="#f3f4f6" stroke="#9ca3af"/><text x="100" y="35" font-size="6" text-anchor="middle">Bank</text><rect x="70" y="75" width="60" height="25" fill="#f3f4f6" stroke="#9ca3af"/><text x="100" y="48" font-size="6" text-anchor="middle">Riverside Street</text><text x="30" y="60" font-size="6" text-anchor="middle" transform="rotate(-90 30 60)">Bridge Street</text><text x="160" y="60" font-size="6" text-anchor="middle" transform="rotate(-90 160 60)">Queens Road</text><path d="M140 120 L140 60 L50 60 L50 45" stroke="black" stroke-width="2" fill="none" marker-end="url(#arrowhead-black)"/></svg></div></div>
+                </div>
+                <div id="direction-feedback" class="text-center mt-4 font-semibold text-lg"></div>
+            </section>
+
+            <!-- Section 4: Labelling a Map -->
+            <section id="labelling">
+                <h2 class="text-2xl font-semibold mb-4 border-b pb-2">Labelling a Map</h2>
+                <p class="mb-2 text-gray-600">Listen to the audio, then drag the labels from the list to the correct locations on the map.</p>
+                <audio controls><source src="https://raw.githubusercontent.com/NeoTetsuya/IELTSguide/main/Cam18.mp3" type="audio/mpeg"></audio>
+                <div class="lg:flex lg:gap-8 mt-4">
+                    <div class="lg:w-2/3 relative">
+                        <img src="https://i.postimg.cc/bNLX1w6m/Brookside-Market.png" alt="Map of Brookside Market" class="w-full h-auto rounded-lg shadow-md">
+                        <div id="map-drop-1" data-correct="ticket" class="drop-zone absolute bg-gray-200/50 border-2 border-dashed border-gray-400 rounded-md flex items-center justify-center font-bold text-gray-500 text-2xl" style="top: 67%; left: 3%; width: 17%; height: 12%;">1</div>
+                        <div id="map-drop-2" data-correct="farm-animals" class="drop-zone absolute bg-gray-200/50 border-2 border-dashed border-gray-400 rounded-md flex items-center justify-center font-bold text-gray-500 text-2xl" style="top: 17%; left: 24%; width: 20%; height: 10%;">2</div>
+                        <div id="map-drop-3" data-correct="picnic" class="drop-zone absolute bg-gray-200/50 border-2 border-dashed border-gray-400 rounded-md flex items-center justify-center font-bold text-gray-500 text-2xl" style="top: 17%; left: 55%; width: 20%; height: 10%;">3</div>
+                        <div id="map-drop-4" data-correct="stall" class="drop-zone absolute bg-gray-200/50 border-2 border-dashed border-gray-400 rounded-md flex items-center justify-center font-bold text-gray-500 text-2xl" style="top: 83%; left: 78%; width: 17%; height: 12%;">4</div>
+                    </div>
+                    <div class="lg:w-1/3 mt-8 lg:mt-0">
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <h3 class="font-bold text-lg mb-4">Options</h3>
+                            <div id="map-labels-container" class="space-y-3">
+                                <div id="farm-animals" draggable="true" class="map-draggable draggable bg-gray-200 p-3 rounded-md flex items-center gap-3"><span class="font-bold text-gray-500">A</span><span>Farm animals</span></div>
+                                <div id="distractor-bread" draggable="true" class="map-draggable draggable bg-gray-200 p-3 rounded-md flex items-center gap-3"><span class="font-bold text-gray-500">B</span><span>Fresh bread</span></div>
+                                <div id="ticket" draggable="true" class="map-draggable draggable bg-gray-200 p-3 rounded-md flex items-center gap-3"><span class="font-bold text-gray-500">C</span><span>Ticket booth</span></div>
+                                <div id="picnic" draggable="true" class="map-draggable draggable bg-gray-200 p-3 rounded-md flex items-center gap-3"><span class="font-bold text-gray-500">D</span><span>Picnic area</span></div>
+                                <div id="stall" draggable="true" class="map-draggable draggable bg-gray-200 p-3 rounded-md flex items-center gap-3"><span class="font-bold text-gray-500">E</span><span>Second-hand book stall</span></div>
+                                <div id="distractor-shows" draggable="true" class="map-draggable draggable bg-gray-200 p-3 rounded-md flex items-center gap-3"><span class="font-bold text-gray-500">F</span><span>Cookery shows</span></div>
+                            </div>
+                            <div class="mt-6">
+                                <button id="check-answers-btn" class="w-full bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors">Check Answers</button>
+                                <button id="reset-map-btn" class="w-full mt-2 bg-gray-200 text-gray-700 px-6 py-2 rounded-lg font-semibold hover:bg-gray-300 transition-colors">Reset</button>
+                            </div>
+                             <div id="map-feedback" class="text-center mt-4 font-semibold text-lg"></div>
+                        </div>
+                         <div class="test-tip">
+                            <p class="test-tip-title"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>Test Tip</p>
+                            <p class="mt-2 text-sm text-gray-700">Before you listen, read the options several times. If you can't decide between two answers, write both down and decide later.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let draggedItem = null;
+
+            function setupDragAndDrop(draggableSelector, droppableSelector, onDropCallback) {
+                const draggables = document.querySelectorAll(draggableSelector);
+                const droppables = document.querySelectorAll(droppableSelector);
+
+                draggables.forEach(draggable => {
+                    draggable.addEventListener('dragstart', (e) => {
+                        draggedItem = e.target.closest(draggableSelector);
+                        setTimeout(() => { if(draggedItem) draggedItem.style.display = 'none'; }, 0);
+                    });
+                    draggable.addEventListener('dragend', () => {
+                        setTimeout(() => { if(draggedItem) { draggedItem.style.display = 'flex'; draggedItem = null; } }, 0);
+                    });
+                });
+
+                droppables.forEach(droppable => {
+                    droppable.addEventListener('dragover', (e) => { e.preventDefault(); droppable.classList.add('drag-over'); });
+                    droppable.addEventListener('dragleave', () => { droppable.classList.remove('drag-over'); });
+                    droppable.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        droppable.classList.remove('drag-over');
+                        if (draggedItem) onDropCallback(draggedItem, droppable);
+                    });
+                });
+            }
+
+            setupDragAndDrop('.vocab-draggable', '.vocab-drop-zone', (dragged, dropped) => {
+                const isCorrect = dropped.dataset.correct === dragged.id;
+                dropped.innerHTML = '';
+                dropped.appendChild(dragged);
+                dragged.style.display = 'flex';
+                dragged.classList.remove('draggable');
+                dropped.classList.add(isCorrect ? 'correct' : 'incorrect');
+                dropped.classList.remove('p-4');
+            });
+
+            const showDirectionsBtn = document.getElementById('show-directions-btn');
+            const directionPathContainer = document.getElementById('direction-path-container');
+            const directionOptions = document.querySelectorAll('.direction-map-option');
+            const directionFeedback = document.getElementById('direction-feedback');
+
+            showDirectionsBtn.addEventListener('click', () => {
+                directionPathContainer.innerHTML = '';
+                setTimeout(() => {
+                    directionPathContainer.innerHTML = `<path id="direction-path" d="M 50 120 L 50 60 L 140 60 L 140 45" stroke="#1d4ed8" stroke-width="3" fill="none" stroke-linecap="round" marker-end="url(#arrowhead-blue)" /><defs><marker id="arrowhead-blue" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#1d4ed8" /></marker></defs>`;
+                }, 10);
+            });
+
+            directionOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    directionOptions.forEach(opt => opt.classList.remove('correct', 'incorrect'));
+                    const isCorrect = option.id === 'map-option-B';
+                    option.classList.add(isCorrect ? 'correct' : 'incorrect');
+                    directionFeedback.textContent = isCorrect ? 'Correct! That follows the directions.' : 'Not quite. Try following the directions again.';
+                    directionFeedback.style.color = isCorrect ? '#16a34a' : '#dc2626';
+                });
+            });
+
+            const specificsQuestions = document.querySelectorAll('#listening-specifics [data-question]');
+            specificsQuestions.forEach(question => {
+                const options = question.querySelectorAll('.mc-option');
+                options.forEach(option => {
+                    option.addEventListener('click', () => {
+                        options.forEach(opt => opt.classList.remove('selected'));
+                        option.classList.add('selected');
+                    });
+                });
+            });
+
+            document.getElementById('check-specifics-btn').addEventListener('click', () => {
+                specificsQuestions.forEach(question => {
+                    const selectedOption = question.querySelector('.mc-option.selected');
+                    const correctAnswer = question.dataset.answer;
+                    question.querySelectorAll('.mc-option').forEach(opt => {
+                        opt.classList.remove('correct', 'incorrect');
+                        if (opt.dataset.option === correctAnswer) { opt.classList.add('correct'); }
+                    });
+                    if (selectedOption && selectedOption.dataset.option !== correctAnswer) {
+                        selectedOption.classList.add('incorrect');
+                    }
+                });
+            });
+
+            const mapLabelsContainer = document.getElementById('map-labels-container');
+            const mapDropZones = document.querySelectorAll('#labelling .drop-zone');
+            
+            setupDragAndDrop('.map-draggable', '#labelling .drop-zone', (dragged, dropped) => {
+                if (dropped.children.length > 0 && dropped.firstChild.classList.contains('map-draggable')) {
+                    mapLabelsContainer.appendChild(dropped.firstChild);
+                }
+                dropped.innerHTML = '';
+                dropped.appendChild(dragged);
+                dragged.style.display = 'flex';
+            });
+            
+            const checkAnswersBtn = document.getElementById('check-answers-btn');
+            const resetMapBtn = document.getElementById('reset-map-btn');
+            const mapFeedback = document.getElementById('map-feedback');
+            const originalLabelsHTML = mapLabelsContainer.innerHTML;
+
+            checkAnswersBtn.addEventListener('click', () => {
+                let correctCount = 0;
+                mapDropZones.forEach(zone => {
+                    zone.classList.remove('correct', 'incorrect');
+                    const droppedItem = zone.querySelector('.map-draggable');
+                    if (droppedItem) {
+                        const isCorrect = zone.dataset.correct === droppedItem.id;
+                        zone.classList.add(isCorrect ? 'correct' : 'incorrect');
+                        if (isCorrect) correctCount++;
+                    } else {
+                        zone.classList.add('incorrect');
+                    }
+                });
+                mapFeedback.textContent = `You got ${correctCount} out of 4 correct!`;
+                mapFeedback.style.color = correctCount === 4 ? '#16a34a' : '#ca8a04';
+            });
+
+            resetMapBtn.addEventListener('click', () => {
+                mapLabelsContainer.innerHTML = originalLabelsHTML;
+                mapDropZones.forEach((zone) => {
+                    const zoneNumber = zone.id.split('-')[2];
+                    zone.innerHTML = `${zoneNumber}`;
+                    zone.classList.remove('correct', 'incorrect');
+                });
+                mapFeedback.textContent = '';
+                setupDragAndDrop('.map-draggable', '#labelling .drop-zone', (dragged, dropped) => {
+                    if (dropped.children.length > 0 && dropped.firstChild.classList.contains('map-draggable')) {
+                        mapLabelsContainer.appendChild(dropped.firstChild);
+                    }
+                    dropped.innerHTML = '';
+                    dropped.appendChild(dragged);
+                    dragged.style.display = 'flex';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
